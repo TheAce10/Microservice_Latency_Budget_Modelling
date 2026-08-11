@@ -1,12 +1,13 @@
 """
-main.py — Problem 13: Latency Budget of a Microservice Architecture
+main.py 
+Problem 13: Latency Budget of a Microservice Architecture
 COE 562 Engineering Systems Design and Modelling, KNUST
 
 Run this file to reproduce every result and figure for the report.
 All random seeds are declared; re-running produces identical output.
 
 Usage:
-    python main.py [--quick]   (--quick skips multi-λ simulation sweep)
+    python main.py [--quick]   (quick skips multi-λ simulation sweep)
 """
 
 import os
@@ -16,11 +17,12 @@ import time
 os.makedirs('figures', exist_ok=True)
 
 print("=" * 62)
-print("  COE 562 — Problem 13: Microservice Latency Budget")
+print("  COE 562: Problem 13: Microservice Latency Budget")
 print("  Bless Elikem Krapah | PG4346325")
 print("=" * 62)
 
-# ── Part (a) & (b): Analytics ─────────────────────────────────────────────────
+
+############# Part (a) & (b): Analytics 
 print("\n[1/4] Running analytic model (parts a & b)...")
 t0 = time.time()
 
@@ -40,7 +42,8 @@ plot_cdf_analytic(lam=50.0, save_path='figures/fig3_cdf_analytic.png')
 
 print(f"  Done in {time.time()-t0:.1f}s")
 
-# ── Parts (c) & (d): Simulation ──────────────────────────────────────────────
+
+############# Parts (c) & (d): Simulation 
 print("\n[2/4] Running DES simulation (parts c & d)...")
 t0 = time.time()
 
@@ -56,14 +59,15 @@ plot_sim_vs_analytic_cdf(lam=50.0, save_path='figures/fig4_sim_vs_analytic_cdf.p
 plot_littles_law(lam=50.0, save_path='figures/fig6_littles_law.png')
 
 if '--quick' not in sys.argv:
-    print("  Running multi-λ P95 sweep (8 reps × 7 λ values × 2 dists)...")
+    print("  Running multi-λ P95 sweep (8 reps x 7 λ values x 2 dists)...")
     plot_p95_vs_lambda(save_path='figures/fig5_p95_vs_lambda.png')
 else:
     print("  Skipping multi-λ sweep (--quick mode).")
 
 print(f"  Done in {time.time()-t0:.1f}s")
 
-# ── Part (e): Capacity strategies ────────────────────────────────────────────
+
+############# Part (e): Capacity strategies 
 print("\n[3/4] Evaluating capacity strategies (part e)...")
 t0 = time.time()
 
@@ -77,7 +81,8 @@ plot_capacity_cdf(save_path='figures/fig8_capacity_sim.png')
 
 print(f"  Done in {time.time()-t0:.1f}s")
 
-# ── Summary ──────────────────────────────────────────────────────────────────
+
+############# Summary 
 print("\n[4/4] Summary")
 print("=" * 62)
 print("  Figures generated:")

@@ -1,5 +1,5 @@
 """
-simulation.py — Problem 13: Latency Budget of a Microservice Architecture
+simulation.py: Problem 13: Latency Budget of a Microservice Architecture
 COE 562 Engineering Systems Design and Modelling, KNUST
 
 Covers parts (c) and (d):
@@ -22,23 +22,23 @@ from analytic import (
     e2e_mean_ms, e2e_p95_ms, e2e_cdf, service_rates, utilisation
 )
 
-# ── Simulation settings ───────────────────────────────────────────────────────
+############# Simulation settings 
 SIM_TIME_S  = 300.0    # total simulation clock (seconds)
 WARM_UP_S   = 30.0     # discard first 30 s (transient phase)
 N_REPS      = 8        # independent replications (different seeds)
 BASE_SEED   = 1000     # seeds are BASE_SEED, BASE_SEED+1, ..., BASE_SEED+N_REPS-1
 
 
-# ── Service-time distributions ────────────────────────────────────────────────
+############# Service-time distributions 
 
 def make_service_fn(mean_ms: float, dist: str = 'exponential', rng=None):
     """
     Return a zero-argument callable that draws a service time in ms.
 
     dist options:
-      'exponential'  — memoryless, CV = 1 (M/M/1 assumption)
-      'lognormal'    — right-skewed, CV = 2 (common in practice)
-      'deterministic'— constant (M/D/1 limit; minimum variance)
+      'exponential'   - memoryless, CV = 1 (M/M/1 assumption)
+      'lognormal'     - right-skewed, CV = 2 (common in practice)
+      'deterministic' - constant (M/D/1 limit; minimum variance)
     """
     if rng is None:
         rng = np.random.default_rng()
@@ -61,7 +61,7 @@ def make_service_fn(mean_ms: float, dist: str = 'exponential', rng=None):
                          "Choose 'exponential', 'lognormal', or 'deterministic'.")
 
 
-# ── SimPy tandem queue ────────────────────────────────────────────────────────
+############# SimPy tandem queue 
 
 class TandemQueue:
     """
@@ -99,7 +99,7 @@ class TandemQueue:
         self._queue_arrival_count = np.zeros(self.n_stages, dtype=float)
         self._queue_depart_count  = np.zeros(self.n_stages, dtype=float)
 
-    # ── Request lifecycle ────────────────────────────────────────────────────
+    ############# Request lifecycle 
 
     def _request_proc(self):
         t_arrive_system = self.env.now
@@ -119,7 +119,7 @@ class TandemQueue:
         if record:
             self.e2e_latencies.append(self.env.now - t_arrive_system)
 
-    # ── Poisson arrival process ──────────────────────────────────────────────
+    ############# Poisson arrival process 
 
     def _arrival_proc(self, sim_end_ms):
         mean_iat_ms = 1000.0 / self.lambda_rps
@@ -132,7 +132,7 @@ class TandemQueue:
         self.env.process(self._arrival_proc(sim_end_ms))
         self.env.run(until=sim_end_ms)
 
-    # ── Output statistics ────────────────────────────────────────────────────
+    ############# Output statistics 
 
     def p95_ms(self) -> float:
         if len(self.e2e_latencies) < 20:
@@ -177,7 +177,7 @@ class TandemQueue:
         return rows
 
 
-# ── Replication runner ───────────────────────────────────────────────────────
+############# Replication runner 
 
 def run_one(lambda_rps: float, dist: str = 'exponential',
             n_servers: Optional[list] = None, seed: int = 0) -> TandemQueue:
@@ -222,7 +222,7 @@ def replicated_stats(lambda_rps: float, dist: str = 'exponential',
     }
 
 
-# ── Printing ─────────────────────────────────────────────────────────────────
+############# Printing 
 
 def print_simulation_summary(lam: float = 50.0) -> None:
     print(f"\n{'='*62}")
@@ -265,7 +265,7 @@ def print_littles_law(lam: float = 50.0) -> None:
     print(f"{'='*62}\n")
 
 
-# ── Figures ──────────────────────────────────────────────────────────────────
+############# Figures
 
 def plot_sim_vs_analytic_cdf(lam: float = 50.0,
                               save_path: str = "figures/fig4_sim_vs_analytic_cdf.png") -> None:
@@ -279,9 +279,9 @@ def plot_sim_vs_analytic_cdf(lam: float = 50.0,
 
     # Simulation CDFs per distribution
     colors = {'exponential': '#1f77b4', 'lognormal': '#ff7f0e', 'deterministic': '#2ca02c'}
-    labels = {'exponential': 'Sim — Exponential (CV=1)',
-              'lognormal':   'Sim — Lognormal (CV=2)',
-              'deterministic': 'Sim — Deterministic (CV=0)'}
+    labels = {'exponential': 'Sim: Exponential (CV=1)',
+              'lognormal':   'Sim: Lognormal (CV=2)',
+              'deterministic': 'Sim: Deterministic (CV=0)'}
     for dist, color in colors.items():
         sim = run_one(lam, dist=dist, seed=BASE_SEED)
         x, y = sim.empirical_cdf()
@@ -313,7 +313,7 @@ def plot_p95_vs_lambda(save_path: str = "figures/fig5_p95_vs_lambda.png") -> Non
 
     ana_p95 = [e2e_p95_ms(l) for l in lams]
 
-    # Simulation P95 for exponential (should match analytic closely)
+    # Simulation P95 for exponential
     sim_exp  = []
     sim_lgn  = []
     sim_exp_lo, sim_exp_hi = [], []
@@ -331,9 +331,9 @@ def plot_p95_vs_lambda(save_path: str = "figures/fig5_p95_vs_lambda.png") -> Non
 
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.plot(lams, ana_p95,  'k-',  lw=2, label='Analytic P95 (M/M/1)')
-    ax.plot(lams, sim_exp,  'b-o', lw=1.5, ms=5, label='Sim — Exponential (CV=1)')
+    ax.plot(lams, sim_exp,  'b-o', lw=1.5, ms=5, label='Sim: Exponential (CV=1)')
     ax.fill_between(lams, sim_exp_lo, sim_exp_hi, alpha=0.15, color='blue')
-    ax.plot(lams, sim_lgn,  'r--s', lw=1.5, ms=5, label='Sim — Lognormal (CV=2)')
+    ax.plot(lams, sim_lgn,  'r--s', lw=1.5, ms=5, label='Sim: Lognormal (CV=2)')
     ax.fill_between(lams, sim_lgn_lo, sim_lgn_hi, alpha=0.15, color='red')
 
     ax.axhline(100.0, color='grey', ls=':', lw=1.2, label='SLA target = 100 ms')
@@ -363,7 +363,7 @@ def plot_littles_law(lam: float = 50.0,
     w = 0.35
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.bar(x - w/2, L_ana, w, label="Analytic  L = ρ/(1−ρ)", color='#1f77b4')
+    ax.bar(x - w/2, L_ana, w, label="Analytic  L = ρ/(1-ρ)", color='#1f77b4')
     ax.bar(x + w/2, L_sim, w, label="Sim  L = λ·W (Little's Law)", color='#ff7f0e', alpha=0.85)
     ax.set_xticks(x)
     ax.set_xticklabels(STAGES)

@@ -1,10 +1,11 @@
 """
-analytic.py — Problem 13: Latency Budget of a Microservice Architecture
+analytic.py
+Problem 13: Latency Budget of a Microservice Architecture
 COE 562 Engineering Systems Design and Modelling, KNUST
 
 Covers parts (a) and (b):
-  (a) Open tandem M/M/1 network: per-stage utilisation and mean E2E latency.
-  (b) Bottleneck identification and critical arrival rate.
+    (a) Open tandem M/M/1 network: per-stage utilisation and mean E2E latency.
+    (b) Bottleneck identification and critical arrival rate.
 
 System: λ → Gateway(1ms) → Auth(3ms) → Business(8ms) → Database(12ms) → reply
 """
@@ -14,14 +15,13 @@ from scipy.optimize import brentq
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-# ── System parameters ─────────────────────────────────────────────────────────
+############# System parameters
 STAGES            = ['Gateway', 'Auth', 'Business', 'Database']
 SERVICE_TIMES_MS  = np.array([1.0, 3.0, 8.0, 12.0])   # mean service times in ms
 LAMBDA_DEFAULT    = 200.0                               # given arrival rate (req/s)
 P95_TARGET_MS     = 100.0    # assumed SLA: 95th-percentile end-to-end must be < 100 ms
 
-# ── Basic M/M/1 formulas ──────────────────────────────────────────────────────
-
+############# Basic M/M/1 queu formulas 
 def service_rates():
     """Service rates μᵢ in req/s from mean service times in ms."""
     return 1000.0 / SERVICE_TIMES_MS
@@ -35,8 +35,8 @@ def utilisation(lam: float) -> np.ndarray:
 def mm1_mean_sojourn_ms(lam: float, mu: float) -> float:
     """
     Mean sojourn time (queue + service) for a single M/M/1 stage.
-    W = 1 / (μ(1 − ρ))   [seconds] → converted to ms.
-    Returns np.inf if ρ ≥ 1 (unstable).
+    W = 1 / (μ(1 - rho))   [seconds] → converted to ms.
+    Returns np.inf if rho ≥ 1 (unstable).
     """
     rho = lam / mu
     if rho >= 1.0:
@@ -53,7 +53,7 @@ def e2e_mean_ms(lam: float) -> float:
     return sum(mm1_mean_sojourn_ms(lam, mu) for mu in mus)
 
 
-# ── Sojourn time distribution — hypoexponential ───────────────────────────────
+############# Sojourn time distribution 
 
 def _hypoexponential_survival(t_ms: np.ndarray, alphas: np.ndarray) -> np.ndarray:
     """
@@ -62,7 +62,7 @@ def _hypoexponential_survival(t_ms: np.ndarray, alphas: np.ndarray) -> np.ndarra
 
     Formula (partial-fraction expansion):
         P(W > t) = Σᵢ  Cᵢ · exp(−αᵢ t)
-        Cᵢ = ∏_{j≠i} αⱼ / (αⱼ − αᵢ)
+        Cᵢ = ∏_{j≠i} αⱼ / (αⱼ - αᵢ)
     """
     n = len(alphas)
     t = np.atleast_1d(np.asarray(t_ms, dtype=float))
@@ -84,12 +84,13 @@ def _hypoexponential_survival(t_ms: np.ndarray, alphas: np.ndarray) -> np.ndarra
 def e2e_survival(t_ms: np.ndarray, lam: float) -> np.ndarray:
     """
     P(W_total > t) for end-to-end latency.
-    Each stage sojourn ~ Exp(μᵢ(1−ρᵢ)), so the total is hypoexponential.
+    Each stage sojourn ~ Exp(μᵢ(1- ρᵢ)), so the total is hypoexponential.
     """
     mus  = service_rates()
     rhos = lam / mus
     if np.any(rhos >= 1.0):
         return np.ones_like(np.atleast_1d(t_ms))
+    
     # Effective rates in ms⁻¹
     alphas = mus * (1.0 - rhos) / 1000.0
     return _hypoexponential_survival(t_ms, alphas)
@@ -116,10 +117,10 @@ def e2e_p95_ms(lam: float) -> float:
         return np.inf
 
 
-# ── Bottleneck analysis ───────────────────────────────────────────────────────
+############# Bottleneck analysis
 
 def bottleneck() -> tuple[str, float]:
-    """Stage with the lowest service rate — limits maximum stable throughput."""
+    """Stage with the lowest service rate; limits maximum stable throughput."""
     mus  = service_rates()
     idx  = int(np.argmin(mus))
     return STAGES[idx], mus[idx]
@@ -143,7 +144,7 @@ def critical_lambda_for_target(target_ms: float = P95_TARGET_MS) -> float | None
         return None
 
 
-# ── Reporting ────────────────────────────────────────────────────────────────
+############# Reporting
 
 def print_stage_summary(lam: float = LAMBDA_DEFAULT) -> None:
     mus  = service_rates()
@@ -184,7 +185,7 @@ def print_bottleneck_analysis() -> None:
     print(f"{'='*62}\n")
 
 
-# ── Figures ──────────────────────────────────────────────────────────────────
+############# Figures generation
 
 def plot_utilisation(save_path: str = "figures/fig1_utilisation.png") -> None:
     lam_stable = critical_lambda_stability()

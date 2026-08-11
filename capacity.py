@@ -1,5 +1,5 @@
 """
-capacity.py — Problem 13: Latency Budget of a Microservice Architecture
+capacity.py: Problem 13: Latency Budget of a Microservice Architecture
 COE 562 Engineering Systems Design and Modelling, KNUST
 
 Covers part (e):
@@ -9,16 +9,16 @@ Covers part (e):
     Business  μ = 125 req/s  ρ = 1.60  (needs ≥ 2 servers)
     Database  μ = 83.3 req/s ρ = 2.40  (needs ≥ 3 servers)
 
-  Strategy A — Replicate:
+  Strategy A: Replicate:
     Add the minimum number of servers at each overloaded stage (M/M/N).
     Business → M/M/2,  Database → M/M/3.
     Total extra cost = 1 (bus) + 2 (db) = 3 extra server units.
 
-  Strategy B — Speed up:
+  Strategy B: Speed up:
     Replace each overloaded stage with ONE faster server at equal cost.
     Spend the same 3 server-units as speedup factor:
     Business → 2× faster (s = 4 ms),  Database → 3× faster (s = 4 ms).
-    Both stay single-server M/M/1 — no coordination overhead.
+    Both stay single-server M/M/1 with no coordination overhead.
 
   The primary bottleneck is the Database (lowest capacity 83.3 req/s),
   so the analysis focuses there while fixing Business as a prerequisite.
@@ -145,7 +145,7 @@ def print_capacity_analysis(lam: float = LAMBDA_DEFAULT) -> None:
     cost = extra_cost(lam)
     print(f"\n  Extra server units needed to stabilise: {cost}")
 
-    print(f"\n  Strategy A — Replicate overloaded stages (M/M/N):")
+    print(f"\n  Strategy A: Replicate overloaded stages (M/M/N):")
     print(f"  {'Stage':<12} {'N servers':>10} {'ρ/server':>10} {'W_stage (ms)':>14}")
     print(f"  {'-'*52}")
     for name, mu, n in zip(STAGES, mus, ns_A):
@@ -154,7 +154,7 @@ def print_capacity_analysis(lam: float = LAMBDA_DEFAULT) -> None:
         print(f"  {name:<12} {n:>10d} {rho_per:>10.3f} {W_s:>14.2f}")
     print(f"  {'E2E mean':>36}: {W_A:.2f} ms")
 
-    print(f"\n  Strategy B — Speed up overloaded stages (×N, single server):")
+    print(f"\n  Strategy B: Speed up overloaded stages (xN, single server):")
     print(f"  {'Stage':<12} {'Speedup':>10} {'New μ':>10} {'ρ':>8} {'W_stage (ms)':>14}")
     print(f"  {'-'*60}")
     mus_B = mus * np.array(speedups, dtype=float)
@@ -204,9 +204,9 @@ def plot_strategy_comparison(lam: float = LAMBDA_DEFAULT,
     B_bars = W_B_per + [sum(W_B_per)]
 
     fig, ax = plt.subplots(figsize=(9, 5))
-    bars_A = ax.bar(x - w/2, A_bars, w, label='Strategy A — Replicate (M/M/N)',
+    bars_A = ax.bar(x - w/2, A_bars, w, label='Strategy A: Replicate (M/M/N)',
                     color='#1f77b4', edgecolor='white')
-    bars_B = ax.bar(x + w/2, B_bars, w, label='Strategy B — Speed up (M/M/1 fast)',
+    bars_B = ax.bar(x + w/2, B_bars, w, label='Strategy B: Speed up (M/M/1 fast)',
                     color='#ff7f0e', edgecolor='white', alpha=0.9)
 
     for bar in bars_A:
@@ -222,7 +222,7 @@ def plot_strategy_comparison(lam: float = LAMBDA_DEFAULT,
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.set_ylabel('Mean latency (ms)')
-    ax.set_title(f'Capacity Strategy Comparison — Per-Stage and Total E2E   (λ = {lam:.0f} req/s)')
+    ax.set_title(f'Capacity Strategy Comparison: Per-Stage and Total E2E   (λ = {lam:.0f} req/s)')
     ax.legend(fontsize=9)
     ax.grid(axis='y', alpha=0.3)
     fig.tight_layout()
@@ -255,9 +255,9 @@ def plot_capacity_cdf(lam: float = LAMBDA_DEFAULT,
 
     fig, ax = plt.subplots(figsize=(9, 5))
     labels = {
-        'A': f'Strategy A — Replicate ({ns_A[1]}× Bus, {ns_A[3]}× DB)',
-        'B': (f'Strategy B — Speed up '
-              f'(Bus ×{speedups[1]}, DB ×{speedups[3]})')
+        'A': f'Strategy A: Replicate ({ns_A[1]}× Bus, {ns_A[3]}× DB)',
+        'B': (f'Strategy B: Speed up '
+              f'(Bus x{speedups[1]}, DB x{speedups[3]})')
     }
     for sim, key, color, ls in [(sim_A,'A','#1f77b4','-'),(sim_B,'B','#ff7f0e','--')]:
         x, y = sim.empirical_cdf()
@@ -270,7 +270,7 @@ def plot_capacity_cdf(lam: float = LAMBDA_DEFAULT,
     ax.axhline(0.95, color='grey', ls=':', lw=1)
     ax.set_xlabel('End-to-end latency (ms)')
     ax.set_ylabel('Cumulative probability')
-    ax.set_title(f'Simulated Latency CDFs — Both Strategies   (λ = {lam:.0f} req/s)')
+    ax.set_title(f'Simulated Latency CDFs: Both Strategies   (λ = {lam:.0f} req/s)')
     ax.legend(fontsize=9)
     ax.grid(alpha=0.3)
     fig.tight_layout()
