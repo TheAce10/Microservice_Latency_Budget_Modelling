@@ -65,8 +65,8 @@
   {\LARGE\bfseries Latency Budget of a Microservice Architecture:\\[4pt]
   Queueing-Theoretic Analysis and Simulation}\\[14pt]
   {\large Bless Elikem Krapah}\\[4pt]
-  {\normalsize MPhil Computer Engineering, KNUST \quad|\quad PG4346325}\\[4pt]
-  {\small\textit{COE 562 --- Engineering Systems Design and Modelling,
+  {\normalsize MPhil Computer Engineering, KNUST}\\[4pt]
+  {\small\textit{COE 562: Engineering Systems Design and Modelling,
   Final Modelling Assessment (Problem 13)}}\\[6pt]
   {\small August 2026}
 \end{center}
@@ -85,7 +85,7 @@ is the Database stage with a maximum throughput of \SI{83.3}{req/s}. A discrete-
 simulation with SimPy validates the analytic model via Little's Law and reveals that
 lognormal service-time distributions (CV\,=\,2, realistic for databases) increase the
 95th-percentile end-to-end latency from \SI{112}{ms} to \SI{312}{ms} at \(\lambda =
-\SI{50}{req/s}\) --- a 2.8-fold underestimate from the M/M/1 assumption. Two equal-cost
+\SI{50}{req/s}\), a 2.8-fold underestimate from the M/M/1 assumption. Two equal-cost
 capacity strategies are evaluated: replicating bottleneck stages (M/M/N) achieves a mean
 end-to-end latency of \SI{32.5}{ms}, whereas an equivalent speedup investment (M/M/1 with
 higher throughput) achieves \SI{22.0}{ms} at \(\lambda = \SI{200}{req/s}\). Strategy B is preferred: a single fast server has less queuing variance than multiple
@@ -334,7 +334,7 @@ Auth     &  333.3 & 0.600 && 0.150 &  3.53 & Stable \\
 Business &  125.0 & 1.600 && 0.400 & 13.33 & Stable \\
 Database &   83.3 & 2.400 && 0.600 & 30.00 & Stable \\
 \midrule
-E2E & --- & \textbf{Unstable} && --- & \textbf{47.92} & Stable \\
+E2E & n/a & \textbf{Unstable} && n/a & \textbf{47.92} & Stable \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -419,23 +419,23 @@ The mean E2E latency should approach the sum of service times:
 \[
   W \xrightarrow{\lambda \to 0} s_1 + s_2 + s_3 + s_4 = 1 + 3 + 8 + 12 = \SI{24}{ms}.
 \]
-The implementation gives $W(\lambda = 1) = \SI{24.02}{ms}$. \checkmark
+The implementation gives $W(\lambda = 1) = \SI{24.02}{ms}$.
 
 \textbf{Heavy-traffic divergence.} As $\lambda \to \mu_4^- = 83.3$ req/s: $W_4 \to \infty$.
 The code returns \texttt{inf} for $\rho \geq 1$ and the root-finder returns \texttt{inf}
-for the P95. \checkmark
+for the P95.
 
 \textbf{Hypoexponential normalisation.} The sum of coefficients $\sum_i C_i$ must equal 1.
 At $\lambda = 50$: $C_1 = 0.993$, $C_2 = 0.025$, $C_3 = -0.018$, $C_4 = 0.000$;
-sum $= 1.000$. \checkmark
+sum $= 1.000$.
 
 \subsection{Dimensional analysis}
 
 \begin{itemize}
-  \item $\rho = \lambda\,[\text{req/s}] / \mu\,[\text{req/s}]$ --- dimensionless. \checkmark
-  \item $W = 1/(\mu(1-\rho))$ --- units $[\text{s/req}] = [\text{s}]$. \checkmark
-  \item $L = \lambda W$ --- units $[\text{req/s}] \cdot [\text{s}] = [\text{req}]$. \checkmark
-  \item $\alpha_i t$ in $e^{-\alpha_i t}$ --- units $[\text{ms}^{-1}]\cdot[\text{ms}]$ = dimensionless. \checkmark
+  \item $\rho = \lambda\,[\text{req/s}] / \mu\,[\text{req/s}]$: dimensionless.
+  \item $W = 1/(\mu(1-\rho))$: units $[\text{s/req}] = [\text{s}]$.
+  \item $L = \lambda W$: units $[\text{req/s}] \cdot [\text{s}] = [\text{req}]$.
+  \item $\alpha_i t$ in $e^{-\alpha_i t}$: units $[\text{ms}^{-1}]\cdot[\text{ms}]$ = dimensionless.
 \end{itemize}
 
 \subsection{Conservation check}
@@ -445,7 +445,7 @@ in queue plus the mean number in service:
 \[
   L_i = L_{q,i} + \rho_i = \frac{\rho_i^2}{1-\rho_i} + \rho_i = \frac{\rho_i}{1-\rho_i}.
 \]
-Algebraic substitution confirms consistency with~\eqref{eq:mm1_L}. \checkmark
+Algebraic substitution confirms consistency with~\eqref{eq:mm1_L}.
 
 % ============================================================
 \section{Validation}
@@ -514,7 +514,7 @@ distributions against the analytic hypoexponential CDF at $\lambda = \SI{50}{req
   \item The \textbf{exponential} simulation P95 of \SI{114.5}{ms} [110.2, 118.8] ms
     matches the analytic \SI{112.2}{ms} within the 95\% confidence interval. The
     M/M/1 model is therefore internally consistent.
-  \item The \textbf{lognormal} simulation P95 is \SI{312.3}{ms} [274.1, 350.4] ms ---
+  \item The \textbf{lognormal} simulation P95 is \SI{312.3}{ms} [274.1, 350.4] ms,
     a 178\% increase over the analytic prediction. The mean latency also rises from
     \SI{47.9}{ms} to \SI{92.6}{ms}. High-variance service times (CV\,=\,2) are
     characteristic of database operations where index-miss penalties cause long outlier
@@ -613,7 +613,7 @@ server counts for stability are:
 \]
 Both strategies use the same total cost: $\Delta N = (3-1) + (4-1) = 5$ extra server units.
 
-\paragraph{Strategy A --- Replicate (M/M/N at overloaded stages).}
+\paragraph{Strategy A: Replicate (M/M/N at overloaded stages).}
 Business becomes M/M/3 ($\rho_{\text{per}} = 0.533$) and Database becomes M/M/4
 ($\rho_{\text{per}} = 0.600$). Using the Erlang-C formula~\eqref{eq:erlang_c}:
 \[
@@ -622,7 +622,7 @@ Business becomes M/M/3 ($\rho_{\text{per}} = 0.533$) and Database becomes M/M/4
   W^{(A)} = \SI{32.47}{ms}.
 \]
 
-\paragraph{Strategy B --- Speed up (M/M/1 at higher rate).}
+\paragraph{Strategy B: Speed up (M/M/1 at higher rate).}
 Business is upgraded by $3\times$ ($\mu_3' = \SI{375}{req/s}$, $s_3' = \SI{2.67}{ms}$,
 $\rho = 0.533$) and Database by $4\times$ ($\mu_4' = \SI{333}{req/s}$, $s_4' = \SI{3}{ms}$,
 $\rho = 0.600$). Using~\eqref{eq:mm1_W}:
@@ -674,8 +674,8 @@ Figure~\ref{fig:capacity_cdf} shows simulated empirical CDFs confirming the anal
 \paragraph{Recommendation.}
 Adopt \textbf{Strategy B} (service-time reduction). At equal cost it reduces mean E2E
 latency by 32\% and reduces P95 latency (as confirmed by simulation). Strategy A
-(replication) has the advantage of fault tolerance --- a single server failure in
-Strategy B takes the stage offline --- but this is an operational concern outside the
+(replication) has the advantage of fault tolerance (a single server failure in
+Strategy B takes the stage offline), but this is an operational concern outside the
 scope of the latency model.
 
 % ============================================================
@@ -698,8 +698,8 @@ The M/M/1 / Jackson model works well for:
 
 \paragraph{Exponential service-time assumption (A2).}
 This is the dominant source of error. The lognormal simulation shows P95 is 178\% higher
-than the analytic prediction at $\lambda = 50$ req/s. Database service times are bimodal in practice --- cache hits settle around 1--2\,ms
-while index misses stretch to 10--50\,ms --- giving CV\,$\gg$\,1. The M/M/1 model
+than the analytic prediction at $\lambda = 50$ req/s. Database service times are bimodal in practice: cache hits settle around 1--2\,ms
+while index misses stretch to 10--50\,ms, giving CV\,$\gg$\,1. The M/M/1 model
 is therefore a best-case lower bound on P95.
 
 \paragraph{Independence assumption (A3).}
@@ -752,9 +752,8 @@ point is insufficient for capacity planning over a full day.
 % ============================================================
 \section*{Use of AI Tools}
 
-AI tools --- including ChatGPT (for brainstorming and concept review), Grammarly
-(for proofreading), and GitHub Copilot (for debugging assistance) --- were used
-during the preparation of this work. Their use was limited to supporting study,
+AI tools (ChatGPT for brainstorming and concept review, Grammarly for proofreading,
+and GitHub Copilot for debugging assistance) were used during the preparation of this work. Their use was limited to supporting study,
 generating draft explanations for review, and identifying syntax errors in code.
 All modelling decisions, derivations, analysis, and conclusions are the author's own.
 
